@@ -41,16 +41,16 @@ const INITIAL_DATA: Dataset = {
 const CHART_COLORS = ['#6366f1', '#ec4899', '#10b981', '#f59e0b', '#8b5cf6', '#06b6d4'];
 
 const SUGGESTIONS = [
-  "📊 Salary by department",
-  "📈 Experience vs Salary trend",
-  "🗺️ Distribution by location",
-  "💰 Total payroll summary",
-  "💡 Key insights"
+  "📊 Salary by dept",
+  "📈 Exp vs Sal trend",
+  "🗺️ Location map",
+  "💰 Payroll sum",
+  "💡 Insights"
 ];
 
-// Node Constants
-const NODE_WIDTH = 208;
-const NODE_HEIGHT = 100;
+// Node Constants - Compact
+const NODE_WIDTH = 150;
+const NODE_HEIGHT = 80;
 
 export default function App() {
   const [view, setView] = useState<'quick' | 'pipeline'>('quick');
@@ -189,10 +189,10 @@ export default function App() {
   const getPortCoords = (nodeId: string, type: 'input' | 'output') => {
     const node = nodes.find(n => n.id === nodeId);
     if (!node) return { x: 0, y: 0 };
-    return { x: type === 'input' ? node.x : node.x + NODE_WIDTH, y: node.y + 64 };
+    return { x: type === 'input' ? node.x : node.x + NODE_WIDTH, y: node.y + 45 };
   };
 
-  // --- Export Utilities (Strictly excluding User Prompts) ---
+  // --- Export Utilities ---
   const captureChartImage = async (id: string): Promise<{ dataUrl: string, width: number, height: number } | null> => {
     const el = chartRefs.current[id];
     if (!el) return null;
@@ -364,27 +364,27 @@ export default function App() {
 
   const renderChart = (msg: ChatMessage) => {
     if (!msg.chartType || !msg.data || msg.data.length === 0) return null;
-    const commonProps = { data: msg.data, margin: { top: 10, right: 10, left: -20, bottom: 0 } };
+    const commonProps = { data: msg.data, margin: { top: 5, right: 5, left: -30, bottom: 0 } };
     const renderAxis = () => (
       <>
         <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
-        <XAxis dataKey="label" stroke="#555" fontSize={9} tickLine={false} axisLine={false} tick={{fill: '#666'}} />
-        <YAxis stroke="#555" fontSize={9} tickLine={false} axisLine={false} tick={{fill: '#666'}} />
-        <Tooltip cursor={{fill: '#222', strokeOpacity: 0.1}} contentStyle={{ backgroundColor: '#1a1a1a', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '11px' }} />
+        <XAxis dataKey="label" stroke="#555" fontSize={7} tickLine={false} axisLine={false} tick={{fill: '#666'}} />
+        <YAxis stroke="#555" fontSize={7} tickLine={false} axisLine={false} tick={{fill: '#666'}} />
+        <Tooltip cursor={{fill: '#222', strokeOpacity: 0.1}} contentStyle={{ backgroundColor: '#1a1a1a', border: 'none', borderRadius: '4px', color: '#fff', fontSize: '9px' }} />
       </>
     );
     return (
-      <div className="group/chart relative h-72 w-full mt-4 bg-[#111] rounded-2xl border border-gray-800/60 shadow-inner overflow-hidden animate-in fade-in zoom-in-95 duration-700">
-        <div ref={(el) => { chartRefs.current[msg.id] = el; }} className="h-full w-full p-8">
+      <div className="group/chart relative h-48 w-full mt-2 bg-[#111] rounded-lg border border-gray-800/60 shadow-inner overflow-hidden animate-in fade-in zoom-in-95 duration-700">
+        <div ref={(el) => { chartRefs.current[msg.id] = el; }} className="h-full w-full p-4">
           <ResponsiveContainer width="100%" height="100%">
             {msg.chartType === 'pie' ? (
-              <PieChart><Pie data={msg.data} dataKey="value" nameKey="label" cx="50%" cy="50%" outerRadius={80} stroke="#111" strokeWidth={3}>{msg.data.map((_: any, index: number) => <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />)}</Pie><Tooltip contentStyle={{ backgroundColor: '#1a1a1a', border: 'none', borderRadius: '8px' }} /><Legend verticalAlign="bottom" wrapperStyle={{fontSize: '10px'}}/></PieChart>
+              <PieChart><Pie data={msg.data} dataKey="value" nameKey="label" cx="50%" cy="50%" outerRadius={45} stroke="#111" strokeWidth={1.5}>{msg.data.map((_: any, index: number) => <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />)}</Pie><Tooltip contentStyle={{ backgroundColor: '#1a1a1a', border: 'none', borderRadius: '4px' }} /><Legend verticalAlign="bottom" wrapperStyle={{fontSize: '8px'}}/></PieChart>
             ) : msg.chartType === 'line' ? (
-              <LineChart {...commonProps}>{renderAxis()}<Line type="monotone" dataKey="value" stroke={COLORS.ACCENT} strokeWidth={4} dot={{ r: 5, fill: COLORS.ACCENT, strokeWidth: 0 }} /></LineChart>
+              <LineChart {...commonProps}>{renderAxis()}<Line type="monotone" dataKey="value" stroke={COLORS.ACCENT} strokeWidth={2} dot={{ r: 3, fill: COLORS.ACCENT, strokeWidth: 0 }} /></LineChart>
             ) : msg.chartType === 'area' ? (
-              <AreaChart {...commonProps}><defs><linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={COLORS.ACCENT} stopOpacity={0.4}/><stop offset="95%" stopColor={COLORS.ACCENT} stopOpacity={0}/></linearGradient></defs>{renderAxis()}<Area type="monotone" dataKey="value" stroke={COLORS.ACCENT} strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" /></AreaChart>
+              <AreaChart {...commonProps}><defs><linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={COLORS.ACCENT} stopOpacity={0.4}/><stop offset="95%" stopColor={COLORS.ACCENT} stopOpacity={0}/></linearGradient></defs>{renderAxis()}<Area type="monotone" dataKey="value" stroke={COLORS.ACCENT} strokeWidth={1.5} fillOpacity={1} fill="url(#colorValue)" /></AreaChart>
             ) : (
-              <BarChart {...commonProps}>{renderAxis()}<Bar dataKey="value" fill={COLORS.ACCENT} radius={[6, 6, 0, 0]} /></BarChart>
+              <BarChart {...commonProps}>{renderAxis()}<Bar dataKey="value" fill={COLORS.ACCENT} radius={[3, 3, 0, 0]} /></BarChart>
             )}
           </ResponsiveContainer>
         </div>
@@ -395,101 +395,101 @@ export default function App() {
   const assistantCharts = useMemo(() => messages.filter(m => m.role === 'assistant' && m.data && m.chartType), [messages]);
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden text-sm bg-[#1a1a1a] select-none text-gray-300 antialiased font-['Inter']">
-      <header className="h-14 flex items-center justify-between px-6 border-b border-gray-800 bg-[#1a1a1a] z-50">
-        <div className="flex items-center gap-3 flex-1">
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">K</div>
-          <span className="font-bold text-white tracking-tight">Kyros <span className="text-gray-500 font-medium hidden sm:inline">Data Assistant</span></span>
+    <div className="flex flex-col h-screen w-screen overflow-hidden text-[10px] bg-[#1a1a1a] select-none text-gray-300 antialiased font-['Inter']">
+      {/* Reduced Header Height */}
+      <header className="h-9 flex items-center justify-between px-4 border-b border-gray-800 bg-[#1a1a1a] z-50">
+        <div className="flex items-center gap-2 flex-1">
+          <div className="w-6 h-6 bg-indigo-600 rounded flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20 text-[10px]">K</div>
+          <span className="font-bold text-white tracking-tight text-[11px]">Kyros <span className="text-gray-500 font-medium hidden sm:inline">Analyst</span></span>
         </div>
-        <nav className="flex bg-[#252525] rounded-xl p-1 border border-gray-800">
-          <button onClick={() => setView('quick')} className={`px-4 py-1.5 rounded-lg text-[10px] font-bold transition-all ${view === 'quick' ? 'bg-indigo-600 text-white shadow-[0_0_15px_rgba(79,70,229,0.4)]' : 'text-gray-400 hover:text-gray-200'}`}>QUICK ANALYST</button>
-          <button onClick={() => setView('pipeline')} className={`px-4 py-1.5 rounded-lg text-[10px] font-bold transition-all ${view === 'pipeline' ? 'bg-indigo-600 text-white shadow-[0_0_15px_rgba(79,70,229,0.4)]' : 'text-gray-400 hover:text-gray-200'}`}>BUILDER</button>
+        <nav className="flex bg-[#252525] rounded-md p-0.5 border border-gray-800">
+          <button onClick={() => setView('quick')} className={`px-2 py-0.5 rounded text-[8px] font-bold transition-all ${view === 'quick' ? 'bg-indigo-600 text-white shadow-[0_0_8px_rgba(79,70,229,0.3)]' : 'text-gray-400 hover:text-gray-200'}`}>QUICK</button>
+          <button onClick={() => setView('pipeline')} className={`px-2 py-0.5 rounded text-[8px] font-bold transition-all ${view === 'pipeline' ? 'bg-indigo-600 text-white shadow-[0_0_8px_rgba(79,70,229,0.3)]' : 'text-gray-400 hover:text-gray-200'}`}>PIPELINE</button>
         </nav>
-        <div className="flex-1 flex justify-end gap-4"><Activity size={10} className="text-indigo-400 animate-pulse" /><div className="w-8 h-8 rounded-full bg-[#333] border border-gray-700 flex items-center justify-center text-xs font-bold ring-2 ring-transparent hover:ring-indigo-500/50 transition-all cursor-pointer">JD</div></div>
+        <div className="flex-1 flex justify-end gap-2 items-center"><Activity size={7} className="text-indigo-400 animate-pulse" /><div className="w-6 h-6 rounded-full bg-[#333] border border-gray-700 flex items-center justify-center text-[8px] font-bold ring-2 ring-transparent hover:ring-indigo-500/50 transition-all cursor-pointer">JD</div></div>
       </header>
 
       <main className="flex-1 relative flex overflow-hidden">
         {view === 'quick' ? (
           <div className="flex flex-1 overflow-hidden animate-in fade-in duration-500">
+            {/* Reduced Grid Area */}
             <div className="flex-[2.5] flex flex-col overflow-hidden bg-[#1e1e1e] border-r border-gray-800">
-              <div className="p-4 border-b border-gray-800 flex items-center justify-between bg-[#1a1a1a]">
-                <div className="flex items-center gap-4 flex-1">
-                  <div className="flex items-center gap-2 text-white font-bold text-xs"><Database size={14} className="text-indigo-400" /> {dataset.name}</div>
-                  <div className="relative flex-1 max-w-xs"><Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" /><input type="text" placeholder="Search records..." className="bg-[#151515] border border-gray-700 rounded-lg py-1.5 pl-8 text-[11px] w-full outline-none focus:border-indigo-500/50 transition-all" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} /></div>
+              <div className="p-2 border-b border-gray-800 flex items-center justify-between bg-[#1a1a1a]">
+                <div className="flex items-center gap-2 flex-1">
+                  <div className="flex items-center gap-1 text-white font-bold text-[10px]"><Database size={10} className="text-indigo-400" /> {dataset.name}</div>
+                  <div className="relative flex-1 max-w-[200px]"><Search size={8} className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500" /><input type="text" placeholder="Search..." className="bg-[#151515] border border-gray-700 rounded py-0.5 pl-6 text-[9px] w-full outline-none focus:border-indigo-500/50 transition-all" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} /></div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-1">
                   <input type="file" id="file-up" className="hidden" onChange={handleFileUpload} />
-                  <label htmlFor="file-up" className="flex items-center gap-2 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg cursor-pointer text-[10px] font-bold uppercase transition-all shadow-lg shadow-indigo-600/20"><Upload size={14} /> Import</label>
-                  <button onClick={() => setDataset(INITIAL_DATA)} className="p-1.5 bg-[#252525] border border-gray-700 text-gray-400 rounded-lg hover:text-white transition-colors"><RefreshCcw size={14}/></button>
+                  <label htmlFor="file-up" className="flex items-center gap-1 px-2 py-0.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded cursor-pointer text-[8px] font-bold uppercase transition-all shadow-md shadow-indigo-600/10"><Upload size={10} /> Up</label>
+                  <button onClick={() => setDataset(INITIAL_DATA)} className="p-0.5 bg-[#252525] border border-gray-700 text-gray-400 rounded hover:text-white transition-colors"><RefreshCcw size={10}/></button>
                 </div>
               </div>
-              <div className="flex-1 overflow-auto p-4 bg-[#151515] custom-scrollbar">
-                <div className="bg-[#252525] border border-gray-800 rounded-xl overflow-hidden shadow-2xl">
+              <div className="flex-1 overflow-auto p-2 bg-[#151515] custom-scrollbar">
+                <div className="bg-[#252525] border border-gray-800 rounded overflow-hidden shadow-lg">
                   <table className="w-full text-left border-collapse">
-                    <thead className="sticky top-0 z-10 bg-[#2d2d2d] border-b border-gray-800"><tr>{dataset.columns.map(col => <th key={col} className="px-4 py-3 font-bold text-gray-400 uppercase text-[9px] border-r border-gray-800/50">{col}</th>)}</tr></thead>
-                    <tbody className="divide-y divide-gray-800/50">{displayedRows.map((row, i) => <tr key={i} className="hover:bg-indigo-500/[0.04] transition-colors">{dataset.columns.map(col => <td key={col} className="px-4 py-2.5 text-gray-400 text-[11px] border-r border-gray-800/20 truncate max-w-[150px]">{row[col]}</td>)}</tr>)}</tbody>
+                    <thead className="sticky top-0 z-10 bg-[#2d2d2d] border-b border-gray-800"><tr>{dataset.columns.map(col => <th key={col} className="px-2 py-1.5 font-bold text-gray-400 uppercase text-[7px] border-r border-gray-800/50">{col}</th>)}</tr></thead>
+                    <tbody className="divide-y divide-gray-800/30">{displayedRows.map((row, i) => <tr key={i} className="hover:bg-indigo-500/[0.04] transition-colors">{dataset.columns.map(col => <td key={col} className="px-2 py-1 text-gray-400 text-[9px] border-r border-gray-800/10 truncate max-w-[100px]">{row[col]}</td>)}</tr>)}</tbody>
                   </table>
                 </div>
               </div>
             </div>
             
+            {/* Reduced Chat Area */}
             <div className="flex-[1.5] flex flex-col bg-[#1a1a1a] shadow-2xl relative">
               <div className="absolute inset-0 opacity-[0.03] pointer-events-none grid-bg"></div>
-              <div className="p-4 border-b border-gray-800 bg-[#1e1e1e]/80 backdrop-blur-md flex items-center justify-between z-10 font-bold text-gray-300 text-[10px] uppercase tracking-widest">
-                <div className="flex items-center gap-2"><div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div> Intelligent Assistant</div>
+              <div className="p-2 border-b border-gray-800 bg-[#1e1e1e]/80 backdrop-blur-md flex items-center justify-between z-10 font-bold text-gray-300 text-[8px] uppercase tracking-widest">
+                <div className="flex items-center gap-1"><div className="w-1 h-1 bg-indigo-500 rounded-full animate-pulse"></div> Kyros AI</div>
                 <div className="relative">
-                  <button onClick={(e) => { e.stopPropagation(); setActiveMenu(activeMenu === 'clean-export' ? null : 'clean-export'); }} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase transition-all ${assistantCharts.length > 0 ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 hover:bg-indigo-600 hover:text-white' : 'bg-gray-800 text-gray-600 cursor-not-allowed'}`}>
-                    {isExporting ? <Loader2 size={12} className="animate-spin"/> : <Download size={12} />} Clean Export
+                  <button onClick={(e) => { e.stopPropagation(); setActiveMenu(activeMenu === 'clean-export' ? null : 'clean-export'); }} className={`flex items-center gap-1 px-1.5 py-0.5 rounded text-[7px] font-bold uppercase transition-all ${assistantCharts.length > 0 ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 hover:bg-indigo-600 hover:text-white' : 'bg-gray-800 text-gray-600 cursor-not-allowed'}`}>
+                    {isExporting ? <Loader2 size={8} className="animate-spin"/> : <Download size={8} />} Export
                   </button>
                   {activeMenu === 'clean-export' && (
-                    <div className="absolute right-0 mt-2 w-64 bg-[#1e1e1e] border border-gray-700 rounded-xl shadow-2xl z-50 overflow-hidden animate-in zoom-in-95 origin-top-right" onClick={(e) => e.stopPropagation()}>
-                      <div className="p-3 border-b border-gray-800 text-[9px] font-bold text-gray-500 uppercase tracking-widest bg-[#151515]">Insights (Charts + Text)</div>
-                      <button onClick={() => bulkExportPDF(false)} className="w-full px-4 py-3 text-left text-[10px] hover:bg-indigo-600 hover:text-white transition-colors flex items-center gap-3"><FileDown size={14}/> PDF Analysis Report</button>
-                      <button onClick={bulkExportDoc} className="w-full px-4 py-3 text-left text-[10px] hover:bg-indigo-600 hover:text-white transition-colors flex items-center gap-3"><FileType size={14}/> Word synthesis (.doc)</button>
-                      <button onClick={exportHTMLDashboard} className="w-full px-4 py-3 text-left text-[10px] hover:bg-indigo-600 hover:text-white transition-colors flex items-center gap-3"><Globe size={14}/> Interactive Dashboard</button>
-                      <div className="p-3 border-b border-gray-800 border-t text-[9px] font-bold text-gray-500 uppercase tracking-widest bg-[#151515]">Visuals Only (No Prompts)</div>
-                      <button onClick={() => bulkExportPDF(true)} className="w-full px-4 py-3 text-left text-[10px] hover:bg-indigo-600 hover:text-white transition-colors flex items-center gap-3"><FileImage size={14}/> Clean Visuals PDF</button>
-                      <button onClick={bulkExportVisualsZip} className="w-full px-4 py-3 text-left text-[10px] hover:bg-indigo-600 hover:text-white transition-colors flex items-center gap-3"><ImageIcon size={14}/> High-Res PNG Gallery (ZIP)</button>
+                    <div className="absolute right-0 mt-1 w-48 bg-[#1e1e1e] border border-gray-700 rounded shadow-2xl z-50 overflow-hidden animate-in zoom-in-95 origin-top-right" onClick={(e) => e.stopPropagation()}>
+                      <button onClick={() => bulkExportPDF(false)} className="w-full px-2.5 py-1.5 text-left text-[8px] hover:bg-indigo-600 hover:text-white transition-colors flex items-center gap-1.5"><FileDown size={10}/> PDF Analysis</button>
+                      <button onClick={bulkExportDoc} className="w-full px-2.5 py-1.5 text-left text-[8px] hover:bg-indigo-600 hover:text-white transition-colors flex items-center gap-1.5"><FileType size={10}/> Word Brief</button>
+                      <button onClick={() => bulkExportPDF(true)} className="w-full px-2.5 py-1.5 text-left text-[8px] hover:bg-indigo-600 hover:text-white transition-colors flex items-center gap-1.5"><FileImage size={10}/> Visuals Only</button>
+                      <button onClick={bulkExportVisualsZip} className="w-full px-2.5 py-1.5 text-left text-[8px] hover:bg-indigo-600 hover:text-white transition-colors flex items-center gap-1.5"><ImageIcon size={10}/> PNG Gallery</button>
                     </div>
                   )}
                 </div>
               </div>
-              <div className="flex-1 overflow-y-auto p-4 space-y-4 flex flex-col no-scrollbar relative z-0">
+              <div className="flex-1 overflow-y-auto p-2 space-y-2 flex flex-col no-scrollbar relative z-0">
                 {messages.map((msg) => (
                   <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2`}>
-                    <div className={`max-w-[95%] rounded-2xl p-4 shadow-lg ${msg.role === 'user' ? 'bg-indigo-600 text-white' : 'bg-[#252525] border border-gray-800 text-gray-300'}`}>
-                      <p className="leading-relaxed text-xs">{msg.content}</p>
+                    <div className={`max-w-[95%] rounded-lg p-2 shadow-sm ${msg.role === 'user' ? 'bg-indigo-600 text-white' : 'bg-[#252525] border border-gray-800 text-gray-300'}`}>
+                      <p className="leading-tight text-[10px]">{msg.content}</p>
                       {msg.role === 'assistant' && renderChart(msg)}
                     </div>
                   </div>
                 ))}
-                {isLoading && <div className="p-3 bg-[#252525] border border-gray-800 rounded-xl w-max animate-pulse text-[10px] text-gray-500 flex items-center gap-2"><RefreshCcw size={10} className="animate-spin text-indigo-500"/> THINKING...</div>}
+                {isLoading && <div className="p-2 bg-[#252525] border border-gray-800 rounded w-max animate-pulse text-[8px] text-gray-500 flex items-center gap-1"><RefreshCcw size={8} className="animate-spin text-indigo-500"/> THINKING...</div>}
                 <div ref={messagesEndRef} />
               </div>
-              <div className="p-4 bg-[#1e1e1e] border-t border-gray-800 z-10">
-                <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3 mb-1 px-1">
+              <div className="p-2 bg-[#1e1e1e] border-t border-gray-800 z-10">
+                <div className="flex gap-1 overflow-x-auto no-scrollbar pb-1.5 mb-0.5 px-0.5">
                   {SUGGESTIONS.map((suggestion, idx) => (
-                    <button key={idx} onClick={() => handleSendMessage(suggestion)} className="whitespace-nowrap px-3 py-1.5 bg-[#252525] border border-gray-700 hover:border-indigo-500/50 text-gray-400 hover:text-white rounded-full text-[10px] transition-all active:scale-95 shadow-sm">{suggestion}</button>
+                    <button key={idx} onClick={() => handleSendMessage(suggestion)} className="whitespace-nowrap px-2 py-0.5 bg-[#252525] border border-gray-700 hover:border-indigo-500/50 text-gray-400 hover:text-white rounded-full text-[8px] transition-all active:scale-95 shadow-sm">{suggestion}</button>
                   ))}
                 </div>
                 <div className="relative group">
-                  <textarea value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSendMessage())} placeholder="Ask about your data..." className="w-full bg-[#151515] border border-gray-700 rounded-2xl px-5 py-4 outline-none focus:border-indigo-500 text-gray-200 resize-none h-[56px] text-[12px]" />
-                  <button onClick={() => handleSendMessage()} disabled={!input.trim() || isLoading} className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 shadow-xl active:scale-95 disabled:opacity-50 transition-opacity"><Send size={16}/></button>
+                  <textarea value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSendMessage())} placeholder="Message..." className="w-full bg-[#151515] border border-gray-700 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 text-gray-200 resize-none h-[38px] text-[10px]" />
+                  <button onClick={() => handleSendMessage()} disabled={!input.trim() || isLoading} className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1.5 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 shadow-xl active:scale-95 disabled:opacity-50 transition-opacity"><Send size={12}/></button>
                 </div>
               </div>
             </div>
           </div>
         ) : (
           <div className="flex flex-1 overflow-hidden relative bg-[#111] animate-in fade-in duration-500">
-             <div className="w-64 bg-[#1a1a1a] border-r border-gray-800 flex flex-col overflow-hidden">
-                <div className="p-4 border-b border-gray-800 flex items-center gap-2 text-[10px] font-bold text-gray-500 uppercase tracking-widest"><Layers size={14} className="text-indigo-400" /> Components</div>
-                <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar">
+             <div className="w-48 bg-[#1a1a1a] border-r border-gray-800 flex flex-col overflow-hidden">
+                <div className="p-2 border-b border-gray-800 flex items-center gap-1 text-[8px] font-bold text-gray-500 uppercase tracking-widest"><Layers size={10} className="text-indigo-400" /> Tools</div>
+                <div className="flex-1 overflow-y-auto p-2 space-y-4 custom-scrollbar">
                   {(['INPUT', 'TRANSFORM', 'LOGIC', 'OUTPUT'] as NodeCategory[]).map(cat => (
-                    <div key={cat} className="space-y-2">
-                       <div className="text-[8px] font-bold text-gray-600 uppercase tracking-tighter flex items-center gap-2"><div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: COLORS[cat] }}></div> {cat}</div>
-                       <div className="grid grid-cols-1 gap-2">
+                    <div key={cat} className="space-y-1">
+                       <div className="text-[7px] font-bold text-gray-600 uppercase tracking-tighter flex items-center gap-1"><div className="w-1 h-1 rounded-full" style={{ backgroundColor: COLORS[cat] }}></div> {cat}</div>
+                       <div className="grid grid-cols-1 gap-1">
                           {NODE_TEMPLATES.filter(n => n.category === cat).map(template => (
-                            <div key={template.type} draggable onDragStart={(e) => handleDragStartFromSidebar(e, template)} className="group flex items-center gap-3 px-3 py-2.5 bg-[#252525] hover:bg-[#2d2d2d] border border-gray-800 hover:border-gray-600 rounded-xl cursor-grab active:cursor-grabbing transition-all hover:scale-[1.02]"><div className="w-8 h-8 rounded-lg flex items-center justify-center bg-black/30 group-hover:bg-indigo-500/10 transition-colors">{cat === 'INPUT' && <Database size={14} className="text-emerald-400" />}{cat === 'TRANSFORM' && <FilterIcon size={14} className="text-blue-400" />}{cat === 'LOGIC' && <ArrowRight size={14} className="text-orange-400" />}{cat === 'OUTPUT' && <BarChart2 size={14} className="text-purple-400" />}</div><span className="text-[10px] font-medium text-gray-400 group-hover:text-gray-200">{template.label}</span></div>
+                            <div key={template.type} draggable onDragStart={(e) => handleDragStartFromSidebar(e, template)} className="group flex items-center gap-2 px-2 py-1.5 bg-[#252525] hover:bg-[#2d2d2d] border border-gray-800 hover:border-gray-600 rounded cursor-grab active:cursor-grabbing transition-all hover:scale-[1.01]"><div className="w-6 h-6 rounded flex items-center justify-center bg-black/30 group-hover:bg-indigo-500/10 transition-colors">{cat === 'INPUT' && <Database size={10} className="text-emerald-400" />}{cat === 'TRANSFORM' && <FilterIcon size={10} className="text-blue-400" />}{cat === 'LOGIC' && <ArrowRight size={10} className="text-orange-400" />}{cat === 'OUTPUT' && <BarChart2 size={10} className="text-purple-400" />}</div><span className="text-[8px] font-medium text-gray-400 group-hover:text-gray-200">{template.label}</span></div>
                           ))}
                        </div>
                     </div>
@@ -505,22 +505,22 @@ export default function App() {
                           const end = getPortCoords(conn.targetId, 'input');
                           const dx = Math.abs(end.x - start.x) * 0.5;
                           const path = `M ${start.x} ${start.y} C ${start.x + dx} ${start.y}, ${end.x - dx} ${end.y}, ${end.x} ${end.y}`;
-                          return <g key={conn.id} className="group/conn pointer-events-auto cursor-pointer" onClick={() => deleteConnection(conn.id)}><path d={path} stroke="rgba(99,102,241,0.2)" strokeWidth="10" fill="none" className="hover:stroke-red-500/20 transition-colors" /><path d={path} stroke="#6366f1" strokeWidth="2" fill="none" /></g>;
+                          return <g key={conn.id} className="group/conn pointer-events-auto cursor-pointer" onClick={() => deleteConnection(conn.id)}><path d={path} stroke="rgba(99,102,241,0.2)" strokeWidth="6" fill="none" className="hover:stroke-red-500/20 transition-colors" /><path d={path} stroke="#6366f1" strokeWidth="1.2" fill="none" /></g>;
                         })}
                         {pendingConnection && (() => {
                           const start = getPortCoords(pendingConnection.sourceId, 'output');
                           const end = { x: pendingConnection.mouseX, y: pendingConnection.mouseY };
                           const dx = Math.abs(end.x - start.x) * 0.5;
                           const path = `M ${start.x} ${start.y} C ${start.x + dx} ${start.y}, ${end.x - dx} ${end.y}, ${end.x} ${end.y}`;
-                          return <path d={path} stroke="#6366f1" strokeWidth="2" strokeDasharray="5,5" fill="none" />;
+                          return <path d={path} stroke="#6366f1" strokeWidth="1.2" strokeDasharray="3,3" fill="none" />;
                         })()}
                       </g>
                    </svg>
                    {nodes.map(node => (
-                     <div key={node.id} className={`absolute w-52 bg-[#1e1e1e] border-2 rounded-2xl shadow-2xl pointer-events-auto select-none group/node transition-shadow ${selectedNodeId === node.id ? 'border-indigo-500 ring-4 ring-indigo-500/10 z-30' : 'border-gray-800 hover:border-gray-700 z-20'}`} style={{ left: node.x, top: node.y }} onMouseDown={(e) => handleNodeDragStart(e, node.id)} onClick={(e) => { e.stopPropagation(); setSelectedNodeId(node.id); }}>
-                        <div className="flex items-center justify-between p-3 border-b border-gray-800/50 bg-black/20 rounded-t-2xl"><div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[node.category] }}></div><span className="text-[9px] font-bold text-gray-500 uppercase tracking-tighter">{node.category}</span></div><button onClick={(e) => { e.stopPropagation(); deleteNode(node.id); }} className="p-1 hover:bg-red-500/20 hover:text-red-400 rounded-lg opacity-0 group-hover/node:opacity-100 transition-opacity"><Trash2 size={12} /></button></div>
-                        <div className="p-4 flex items-center gap-3"><div className="w-10 h-10 rounded-xl bg-black/40 flex items-center justify-center border border-gray-800">{node.category === 'INPUT' && <FileCode size={18} className="text-emerald-500" />}{node.category === 'TRANSFORM' && <Terminal size={18} className="text-blue-500" />}{node.category === 'LOGIC' && <Zap size={18} className="text-orange-500" />}{node.category === 'OUTPUT' && <Layout size={18} className="text-purple-500" />}</div><div className="overflow-hidden"><div className="text-[11px] font-bold text-gray-100 truncate">{node.label}</div><div className="text-[8px] text-gray-600 uppercase font-mono mt-0.5 tracking-tighter">READY</div></div></div>
-                        <div className="flex justify-between items-center px-4 py-2 bg-black/10 rounded-b-2xl"><div className="w-4 h-4 bg-gray-700 border-2 border-[#1e1e1e] rounded-full -ml-6 flex items-center justify-center hover:bg-indigo-400 cursor-pointer transition-colors z-50" onMouseUp={(e) => handleInputPortMouseUp(e, node.id)} onMouseDown={(e) => e.stopPropagation()}><div className="w-1.5 h-1.5 bg-[#1e1e1e] rounded-full"></div></div><div className="w-4 h-4 bg-gray-700 border-2 border-[#1e1e1e] rounded-full -mr-6 flex items-center justify-center hover:bg-indigo-400 cursor-pointer transition-colors z-50" onMouseDown={(e) => handleOutputPortMouseDown(e, node.id)}><div className="w-1.5 h-1.5 bg-[#1e1e1e] rounded-full"></div></div></div>
+                     <div key={node.id} className={`absolute w-[150px] bg-[#1e1e1e] border border-2 rounded-lg shadow-xl pointer-events-auto select-none group/node transition-shadow ${selectedNodeId === node.id ? 'border-indigo-500 ring-2 ring-indigo-500/10 z-30' : 'border-gray-800 hover:border-gray-700 z-20'}`} style={{ left: node.x, top: node.y }} onMouseDown={(e) => handleNodeDragStart(e, node.id)} onClick={(e) => { e.stopPropagation(); setSelectedNodeId(node.id); }}>
+                        <div className="flex items-center justify-between p-1.5 border-b border-gray-800/50 bg-black/20 rounded-t-lg"><div className="flex items-center gap-1"><div className="w-1 h-1 rounded-full" style={{ backgroundColor: COLORS[node.category] }}></div><span className="text-[7px] font-bold text-gray-500 uppercase tracking-tighter">{node.category}</span></div><button onClick={(e) => { e.stopPropagation(); deleteNode(node.id); }} className="p-0.5 hover:bg-red-500/20 hover:text-red-400 rounded opacity-0 group-hover/node:opacity-100 transition-opacity"><Trash2 size={8} /></button></div>
+                        <div className="p-2 flex items-center gap-2"><div className="w-7 h-7 rounded bg-black/40 flex items-center justify-center border border-gray-800">{node.category === 'INPUT' && <FileCode size={12} className="text-emerald-500" />}{node.category === 'TRANSFORM' && <Terminal size={12} className="text-blue-500" />}{node.category === 'LOGIC' && <Zap size={12} className="text-orange-500" />}{node.category === 'OUTPUT' && <Layout size={12} className="text-purple-500" />}</div><div className="overflow-hidden"><div className="text-[9px] font-bold text-gray-100 truncate">{node.label}</div><div className="text-[6px] text-gray-600 uppercase font-mono mt-0.5 tracking-tighter">OK</div></div></div>
+                        <div className="flex justify-between items-center px-2 py-1 bg-black/10 rounded-b-lg"><div className="w-3 h-3 bg-gray-700 border-2 border-[#1e1e1e] rounded-full -ml-3.5 flex items-center justify-center hover:bg-indigo-400 cursor-pointer transition-colors z-50" onMouseUp={(e) => handleInputPortMouseUp(e, node.id)} onMouseDown={(e) => e.stopPropagation()}><div className="w-0.5 h-0.5 bg-[#1e1e1e] rounded-full"></div></div><div className="w-3 h-3 bg-gray-700 border-2 border-[#1e1e1e] rounded-full -mr-3.5 flex items-center justify-center hover:bg-indigo-400 cursor-pointer transition-colors z-50" onMouseDown={(e) => handleOutputPortMouseDown(e, node.id)}><div className="w-0.5 h-0.5 bg-[#1e1e1e] rounded-full"></div></div></div>
                      </div>
                    ))}
                 </div>
@@ -529,9 +529,9 @@ export default function App() {
         )}
       </main>
 
-      <footer className="h-8 bg-[#1a1a1a] border-t border-gray-800 flex items-center justify-between px-6 text-[9px] text-gray-600 font-bold uppercase tracking-widest relative z-50">
-        <div className="flex items-center gap-6"><span>Dataset: {dataset.name}</span><span>AI Mode: GEMINI FLASH</span><span>Status: READY</span></div>
-        <div className="text-indigo-500/80">Kyros Intelligence &copy; 2025</div>
+      <footer className="h-6 bg-[#1a1a1a] border-t border-gray-800 flex items-center justify-between px-4 text-[7px] text-gray-600 font-bold uppercase tracking-widest relative z-50">
+        <div className="flex items-center gap-4"><span>Data: {dataset.name}</span><span>AI: FLASH</span><span>READY</span></div>
+        <div className="text-indigo-500/60">Kyros &copy; 2025</div>
       </footer>
     </div>
   );
