@@ -1,0 +1,8 @@
+{
+  "name": "Copy of Kyros Data Assistant",
+  "description": "An intelligent data analysis and visualization platform powered by Gemini AI, featuring natural language querying and a visual workflow pipeline builder.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
