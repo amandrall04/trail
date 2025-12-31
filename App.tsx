@@ -75,6 +75,8 @@ export default function App() {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [canvasOffset, setCanvasOffset] = useState({ x: 0, y: 0 });
   const [pendingConnection, setPendingConnection] = useState<{ sourceId: string; mouseX: number; mouseY: number } | null>(null);
+  const [isPipelineRunning, setIsPipelineRunning] = useState(false);
+  const [showRunSuccess, setShowRunSuccess] = useState(false);
   
   const canvasRef = useRef<HTMLDivElement>(null);
   const chartRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
@@ -102,6 +104,16 @@ export default function App() {
   const displayedRows = useMemo(() => filteredRows.slice(0, rowLimit), [filteredRows, rowLimit]);
 
   // --- Pipeline Functions ---
+  const handleRunPipeline = () => {
+    if (nodes.length === 0) return alert("Add some nodes to the pipeline first.");
+    setIsPipelineRunning(true);
+    setTimeout(() => {
+      setIsPipelineRunning(false);
+      setShowRunSuccess(true);
+      setTimeout(() => setShowRunSuccess(false), 3000);
+    }, 2000);
+  };
+
   const handleDragStartFromSidebar = (e: React.DragEvent, template: typeof NODE_TEMPLATES[0]) => {
     e.dataTransfer.setData('node-template', JSON.stringify(template));
   };
@@ -396,7 +408,7 @@ export default function App() {
 
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden text-[10px] bg-[#1a1a1a] select-none text-gray-300 antialiased font-['Inter']">
-      {/* Reduced Header Height */}
+      {/* Header */}
       <header className="h-9 flex items-center justify-between px-4 border-b border-gray-800 bg-[#1a1a1a] z-50">
         <div className="flex items-center gap-2 flex-1">
           <div className="w-6 h-6 bg-indigo-600 rounded flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20 text-[10px]">K</div>
@@ -412,7 +424,6 @@ export default function App() {
       <main className="flex-1 relative flex overflow-hidden">
         {view === 'quick' ? (
           <div className="flex flex-1 overflow-hidden animate-in fade-in duration-500">
-            {/* Reduced Grid Area */}
             <div className="flex-[2.5] flex flex-col overflow-hidden bg-[#1e1e1e] border-r border-gray-800">
               <div className="p-2 border-b border-gray-800 flex items-center justify-between bg-[#1a1a1a]">
                 <div className="flex items-center gap-2 flex-1">
@@ -435,7 +446,6 @@ export default function App() {
               </div>
             </div>
             
-            {/* Reduced Chat Area */}
             <div className="flex-[1.5] flex flex-col bg-[#1a1a1a] shadow-2xl relative">
               <div className="absolute inset-0 opacity-[0.03] pointer-events-none grid-bg"></div>
               <div className="p-2 border-b border-gray-800 bg-[#1e1e1e]/80 backdrop-blur-md flex items-center justify-between z-10 font-bold text-gray-300 text-[8px] uppercase tracking-widest">
@@ -481,6 +491,7 @@ export default function App() {
           </div>
         ) : (
           <div className="flex flex-1 overflow-hidden relative bg-[#111] animate-in fade-in duration-500">
+             {/* Component Sidebar */}
              <div className="w-48 bg-[#1a1a1a] border-r border-gray-800 flex flex-col overflow-hidden">
                 <div className="p-2 border-b border-gray-800 flex items-center gap-1 text-[8px] font-bold text-gray-500 uppercase tracking-widest"><Layers size={10} className="text-indigo-400" /> Tools</div>
                 <div className="flex-1 overflow-y-auto p-2 space-y-4 custom-scrollbar">
@@ -496,7 +507,31 @@ export default function App() {
                   ))}
                 </div>
              </div>
+             {/* Canvas Area */}
              <div ref={canvasRef} className="flex-1 relative overflow-hidden grid-bg cursor-crosshair" onDragOver={(e) => e.preventDefault()} onDrop={onDropOnCanvas}>
+                {/* Floating Toolbar with RUN button */}
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-2 bg-[#1a1a1a]/80 backdrop-blur-md border border-gray-800 rounded-lg shadow-2xl z-50">
+                  <button 
+                    onClick={handleRunPipeline}
+                    disabled={isPipelineRunning}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-[9px] font-bold uppercase transition-all shadow-lg ${isPipelineRunning ? 'bg-gray-700 text-gray-400' : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-600/20 active:scale-95'}`}
+                  >
+                    {isPipelineRunning ? <Loader2 size={12} className="animate-spin" /> : <Play size={12} fill="currentColor" />}
+                    {isPipelineRunning ? 'Running...' : 'Run Pipeline'}
+                  </button>
+                  <div className="w-px h-4 bg-gray-800 mx-1"></div>
+                  <button onClick={() => {setNodes([]); setConnections([]);}} className="p-1.5 text-gray-500 hover:text-red-400 transition-colors" title="Clear Canvas">
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+
+                {/* Status Toast */}
+                {showRunSuccess && (
+                  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 rounded-full text-[9px] font-bold uppercase tracking-widest flex items-center gap-2 z-50 animate-in fade-in slide-in-from-bottom-4">
+                    <CheckCircle2 size={12} /> Execution Finished Successfully
+                  </div>
+                )}
+
                 <div className="absolute inset-0" style={{ transform: `translate(${canvasOffset.x}px, ${canvasOffset.y}px)` }}>
                    <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible" style={{ width: '10000px', height: '10000px', transform: 'translate(-5000px, -5000px)' }}>
                       <g transform="translate(5000, 5000)">
