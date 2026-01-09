@@ -1,20 +1,42 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Kyros Data Assistant
 
-# Run and deploy your AI Studio app
+Kyros is an obsidian-themed, high-density data analysis platform. Talk to your data or build visual pipelines to automate your insights.
 
-This contains everything you need to run your app locally.
+## 🚀 Features
+- **Conversational Intelligence:** Query your CSV/Excel files in plain English.
+- **Node-Based Builder:** Drag-and-drop workflow designer.
+- **Professional Exports:** Generate clean reports for stakeholders in one click.
+- **Local-First:** Your data never leaves your browser.
 
-View your app in AI Studio: https://ai.studio/apps/drive/19ZJt54cZFR_g-eUVSKDEOhFh-ZAdCVN4
+## 🛠️ Setup & Development
 
-## Run Locally
+### Prerequisites
+- Node.js 18+
+- A Google Gemini API Key
 
-**Prerequisites:**  Node.js
+### Installation
+1. Clone the repository.
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Set your API Key in your environment:
+   ```bash
+   export API_KEY=your_gemini_key
+   ```
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
+## 📂 Architecture
+- `App.tsx`: The heart of the app—manages AI, charts, and canvas state.
+- `constants.ts`: Visual configuration and Node templates.
+- `types.ts`: Strictly typed interfaces for data and workflows.
+- `index.html`: Base styles and grid background implementation.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## 📊 Design Philosophy
+Kyros is designed for **Professional Density**. It avoids bulky UI elements in favor of a compact, information-rich environment. Every pixel is tuned for productivity, from the 9px fonts in the data table to the precise node connections on the canvas.
+
+---
+*Built with ❤️ by the Kyros Engineering Team.*

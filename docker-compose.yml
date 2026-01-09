@@ -1,9 +1,14 @@
-
 version: '3.8'
 
 services:
-  kyros-app:
-    build: .
+  kyros-assistant:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - API_KEY=${API_KEY}
+    image: kyros-data-assistant:latest
+    container_name: kyros_app
     ports:
       - "8080:80"
     environment:
